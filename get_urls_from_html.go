@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/url"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -20,6 +22,18 @@ func getURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 			for _, a := range n.Attr {
 				if a.Key == "href" {
 					val := a.Val
+
+					valURL, err := url.Parse(a.Val)
+					if err != nil {
+						fmt.Println(err)
+						break
+					}
+
+					ext := filepath.Ext(valURL.Path)
+					if ext != "" && ext != ".html" && ext != ".htm" {
+						break
+					}
+
 					if strings.HasPrefix(val, "/") {
 						urls = append(urls, rawBaseURL+val)
 					} else if strings.HasPrefix(val, "..") {

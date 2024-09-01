@@ -21,11 +21,10 @@ func main() {
 	websiteURL := args[0]
 	fmt.Printf("starting crawl of: %v\n", websiteURL)
 
-	html, err := getHTML(websiteURL)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	pages := map[string]int{}
+	pages = crawlPage(websiteURL, websiteURL, pages)
 
-	fmt.Println(html)
+	for key, val := range pages {
+		fmt.Printf("%s: %d\n", key, val)
+	}
 }
