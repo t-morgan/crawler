@@ -22,7 +22,7 @@ func main() {
 	fmt.Printf("starting crawl of: %v\n", websiteURL)
 
 	pages := map[string]int{}
-	pages = crawlPage(websiteURL, websiteURL, pages)
+	crawlPage(websiteURL, websiteURL, pages)
 
 	for key, val := range pages {
 		fmt.Printf("%s: %d\n", key, val)

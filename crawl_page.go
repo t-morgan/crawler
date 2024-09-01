@@ -2,45 +2,54 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
+	"net/url"
 )
 
-func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) map[string]int {
-	if !strings.HasPrefix(rawCurrentURL, rawBaseURL) {
-		return pages
+func crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
+	currentURL, err := url.Parse(rawCurrentURL)
+	if err != nil {
+		fmt.Printf("could not parse URL %s: %v\n", rawCurrentURL, err)
+		return
+	}
+
+	baseURL, err := url.Parse(rawBaseURL)
+	if err != nil {
+		fmt.Printf("could not parse URL %s: %v\n", rawBaseURL, err)
+		return
+	}
+
+	if currentURL.Hostname() != baseURL.Hostname() {
+		return
 	}
 
 	normalizedURL, err := normalizeURL(rawCurrentURL)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return
 	}
 
 	_, ok := pages[normalizedURL]
 	if ok {
 		pages[normalizedURL]++
-		return pages
+		return
 	}
 
 	pages[normalizedURL] = 1
 
+	fmt.Printf("crawling %s\n", rawCurrentURL)
+
 	html, err := getHTML(rawCurrentURL)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return
 	}
-	fmt.Println(html)
 
 	urls, err := getURLsFromHTML(html, rawBaseURL)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
 	}
 
 	for _, url := range urls {
 		crawlPage(rawBaseURL, url, pages)
 	}
-
-	return pages
 }
